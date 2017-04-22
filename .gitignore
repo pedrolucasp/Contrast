@@ -2,6 +2,8 @@
 #
 .DS_Store
 
+app/secret.json
+
 # Xcode
 #
 build/
