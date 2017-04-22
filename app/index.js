@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import addDays    from 'date-fns/add_days';
+import addHours   from 'date-fns/add_hours';
 import subDays    from 'date-fns/sub_days';
 import startOfDay from 'date-fns/start_of_day';
 
@@ -21,6 +22,13 @@ import { API_HOST, API_KEY } from './secret.json';
 const LAT     = -31.776;
 const LNG     = -52.3594;
 const today   = startOfDay(new Date());
+
+// This hash will hold the last checked weather so we don't
+// need to make a request for each time we play with the date selector
+// so we will update each hour
+
+let fetchedWeather = { future: {}, past: {} };
+const emptyWeather = generateEmptyWeather();
 
 function weatherUrl(lat: number, lng: number, date: Date) : string {
   const timestamp = Math.floor(date.getTime() / 1000);
@@ -35,7 +43,7 @@ function fetchWeather(date: Date) {
     .then(data => data.hourly.data);
 }
 
-function emptyWeather() {
+function generateEmptyWeather() {
   const weather = [];
   for (let index = 0; index < 24; index++) {
     weather.push({ temperature: 0, time: index });
@@ -54,14 +62,14 @@ export default class Contrast extends Component {
     this.state = {
       ratio: new Animated.Value(100),
       location: 'Pelotas, Brasil',
-      pastOptions: [yesterday],
+      pastOptions: [subDays(yesterday, 1), yesterday],
       futureOptions: [today, addDays(today, 1)],
 
       past: yesterday,
       future: today,
 
-      pastWeather: emptyWeather(),
-      futureWeather: emptyWeather()
+      pastWeather: emptyWeather,
+      futureWeather: emptyWeather
     };
   }
 
@@ -99,13 +107,41 @@ export default class Contrast extends Component {
   }
 
   fetchFuture(date: Date) {
-    fetchWeather(date)
-      .then(data => { this.setState({ futureWeather: data }) });
+    let timestamp = Math.floor(date.getTime() / 1000);
+
+    fetchedFuture = fetchedWeather.future[timestamp];
+
+    if (fetchedFuture == emptyWeather || fetchedFuture == null || fetchedFuture.nextCheckDate == new Date()) {
+      fetchWeather(date)
+        .then(data => { 
+          let nextCheckDate  = addHours(new Date(), 1);
+          data.nextCheckDate = nextCheckDate;
+
+          fetchedWeather.future[timestamp] = data;
+          this.setState({ futureWeather: data })
+        });
+    } else {
+      this.setState({ futureWeather: fetchedFuture });
+    }
   }
 
   fetchPast(date: Date) {
-    fetchWeather(date)
-      .then(data => { this.setState({ pastWeather: data }) });
+    let timestamp = Math.floor(date.getTime() / 1000);
+
+    fetchedPast = fetchedWeather.past[timestamp];
+
+    if (fetchedPast == emptyWeather || fetchedPast == null || fetchedPast.nextCheckDate == new Date()) {
+      fetchWeather(date)
+        .then(data => { 
+          let nextCheckDate  = addHours(new Date(), 1);
+          data.nextCheckDate = nextCheckDate;
+
+          fetchedWeather.past[timestamp] = data;
+          this.setState({ pastWeather: data })
+        });
+    } else {
+      this.setState({ passWeather: fetchedPast });
+    }
   }
 
   render() {

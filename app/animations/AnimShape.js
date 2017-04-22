@@ -23,7 +23,7 @@ type Props = {
   d: () => any,
 };
 
-const AnimationDurationMs = 850;
+const AnimationDurationMs = 350;
 
 export default class AnimShape extends React.Component {
 
