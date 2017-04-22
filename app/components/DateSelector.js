@@ -8,44 +8,39 @@ import {
   View
 } from 'react-native';
 
-import moment from 'moment';
+import format      from 'date-fns/format';
+import isToday     from 'date-fns/is_today';
+import isTomorrow  from 'date-fns/is_tomorrow';
+import isYesterday from 'date-fns/is_yesterday';
 
 const WIDTH = 320;
-const dateDifferences = {
-   '0': 'Hoje',
-   '1': 'Amanhã',
-  '-1': 'Ontem'
-};
 
 function formatDate(date: Date) : string {
-  let today       = new moment(new Date());
-  let newDate     = new moment(date);
-  let difference  = today.diff(newDate, 'days');
-
-  return dateDifferences[String(difference)] || new moment(newDate).format("ddd, DD/MM/YYYY");
-}
-
-function times(n : number) : Array<number> {
-  const arr = new Array(n);
-
-  for (let i = 0; i < n; i++) {
-    arr[i] = i;
+  if (isYesterday(date)) {
+    return 'Ontem';
+  } else if (isToday(date)) {
+    return 'Hoje';
+  } else if (isTomorrow(date)) {
+    return 'Amanhã';
+  } else {
+    format(date, "ddd, D MM");
   }
-
-  return arr;
 }
 
-function onScroll(onChange) {
+type ChangeHandler = (date: Date) => void;
+
+function onScroll(onChange: ChangeHandler, dates: Array<Date>) {
   return event => {
     const offset = event.nativeEvent.contentOffset.x;
-    const index = Math.floor(offset / 320);
-    onChange(index);
+    const index  = Math.floor(offset / 320);
+
+    onChange(dates[index]);
   };
 }
 
 type Props = {
   dates: Array<Date>,
-  onChange: any
+  onChange: ChangeHandler
 };
 
 export function DateSelector({ dates, onChange }: Props) {
@@ -55,7 +50,7 @@ export function DateSelector({ dates, onChange }: Props) {
 
   return <View style={[styles.container]}>
     <ScrollView
-      onMomentumScrollEnd={onScroll(onChange)}
+      onMomentumScrollEnd={onScroll(onChange, dates)}
       horizontal={true}
       pagingEnabled={true}
       showsHorizontalScrollIndicator={false}

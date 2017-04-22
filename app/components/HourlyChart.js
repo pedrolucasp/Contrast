@@ -10,32 +10,37 @@ import {
 } from 'react-native';
 
 type Props = {
-  yesterday: Array<Object>,
-  today: Array<Object>,
+  past: Array<Object>,
+  future: Array<Object>,
   style: Object
 };
 
-export function HourlyChart({ yesterday, today, style }: Props) {
-  const hours = yesterday.slice(0, 24).map((h, i) => {
-    const yesterdayHour = Math.round((h.temperature - 50) * 4);
-    const todayHour     = Math.round((today[i].temperature - 50) * 4);
+export function HourlyChart({ past, future, style }: Props) {
+  const hours = past.slice(0, 24).map((hour, index) => {
+    let pastTemperature   = hour.temperature; 
+    let futureTemperature = future[index].temperature;
 
-    return (<View key={h.time} style={[styles.barBox]}>
-      <View style={[styles.bar, styles.barYesterday, { height: yesterdayHour }]} />
-      <View style={[styles.bar, styles.barToday, { height: todayHour }]} />
+    const pastBarHeight   = calcBarHeight(pastTemperature);
+    const futureBarHeight = calcBarHeight(futureTemperature);
+
+    return (<View key={hour.time} style={[styles.barBox]}>
+      <View style={[styles.bar, styles.barPast,   { height: pastBarHeight }]} />
+      <View style={[styles.bar, styles.barFuture, { height: futureBarHeight }]} />
     </View>);
   });
 
-  const texts = yesterday.slice(0, 12).map((h, i) => (
+  const texts = past.slice(0, 12).map((h, i) => (
     <Text key={i} style={[styles.barText]}>{i * 2}</Text>
   ));
-
-  console.debug(yesterday, today, style);
 
   return (<View style={[style, styles.container]}>
       <View style={styles.chartItems}>{hours}</View>
       <View style={styles.chartItems}>{texts}</View>
     </View>);
+}
+
+function calcBarHeight(temperature) {
+  return Math.round(temperature - 50) * 4;
 }
 
 const styles = StyleSheet.create({
@@ -67,10 +72,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
   },
-  barYesterday: {
+  barPast: {
     backgroundColor: '#E4C478',
   },
-  barToday: {
+  barFuture: {
     backgroundColor: '#74B49B',
     opacity: 0.65,
     marginLeft: -10,

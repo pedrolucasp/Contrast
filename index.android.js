@@ -11,7 +11,8 @@ import {
   View
 } from 'react-native';
 
-import moment from 'moment';
+import addDays from 'date-fns/add_days';
+import subDays from 'date-fns/sub_days';
 
 import { DateSelector } from './app/components/DateSelector';
 import { HourlyChart } from './app/components/HourlyChart';
@@ -20,13 +21,12 @@ import sample from './app/sample.json';
 const API_KEY = '80c3c6b0aecd107208875a63410b371e';
 
 const today = new Date();
-const dates = [
-  new moment(today).subtract(1, 'days').toDate(), 
-  today,
-  new moment(today).add(1, 'days').toDate()
-];
 
-console.debug(dates, today, moment);
+const dates = [
+  subDays(today, 1), 
+  today,
+  addDays(today, 1)
+];
 
 function buildUrl(lat: number, lng: number) : string {
   return `https://api.forecast.io/forecast/${API_KEY}/${lat},${lng}`;
@@ -68,7 +68,7 @@ export default class Contrast extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <HourlyChart yesterday={this.state.yesterday} today={this.state.today} style={[{ marginBottom: 20 }]}/>
+        <HourlyChart past={this.state.yesterday} future={this.state.today} style={[{ marginBottom: 20 }]}/>
         <DateSelector dates={dates} onChange={this.onYesterdayChange.bind(this)} />
         <DateSelector dates={dates} onChange={this.onTodayChange.bind(this)} />
       </View>
