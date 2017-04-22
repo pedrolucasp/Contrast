@@ -23,7 +23,7 @@ function formatDate(date: Date) : string {
   } else if (isTomorrow(date)) {
     return 'Amanhã';
   } else {
-    format(date, "ddd, D MM");
+    return format(date, "ddd, D/MM");
   }
 }
 
