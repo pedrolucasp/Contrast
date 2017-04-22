@@ -22,12 +22,6 @@ const LAT     = -31.776;
 const LNG     = -52.3594;
 const today   = startOfDay(new Date());
 
-const dates = [
-  subDays(today, 1), 
-  today,
-  addDays(today, 1)
-];
-
 function weatherUrl(lat: number, lng: number, date: Date) : string {
   const timestamp = Math.floor(date.getTime() / 1000);
   return `https://api.forecast.io/forecast/${API_KEY}/${lat},${lng},${timestamp}`;
@@ -41,6 +35,15 @@ function fetchWeather(date: Date) {
     .then(data => data.hourly.data);
 }
 
+function emptyWeather() {
+  const weather = [];
+  for (let index = 0; index < 24; index++) {
+    weather.push({ temperature: 0, time: index });
+  }
+
+  return weather;
+}
+
 export default class Contrast extends Component {
 
   constructor() {
@@ -50,14 +53,15 @@ export default class Contrast extends Component {
 
     this.state = {
       ratio: new Animated.Value(100),
+      location: 'Pelotas, Brasil',
       pastOptions: [yesterday],
       futureOptions: [today, addDays(today, 1)],
 
       past: yesterday,
       future: today,
 
-      pastWeather: [],
-      futureWeather: []
+      pastWeather: emptyWeather(),
+      futureWeather: emptyWeather()
     };
   }
 
@@ -107,18 +111,26 @@ export default class Contrast extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.location}>{ this.state.location }</Text>
+        </View>
         <HourlyChart 
+          width={500}
+          height={200}
           past={this.state.pastWeather} 
-          future={this.state.futureWeather} 
-          style={[{ marginBottom: 20 }]} />
+          future={this.state.futureWeather} />
 
-        <DateSelector 
-          dates={this.state.pastOptions} 
-          onChange={this.onPastChange.bind(this)} />
+        <View style={styles.footer}>
+          <DateSelector 
+            dates={this.state.pastOptions} 
+            onChange={this.onPastChange.bind(this)} />
 
-        <DateSelector 
-          dates={this.state.futureOptions} 
-          onChange={this.onFutureChange.bind(this)} />
+          <Text style={[styles.vs]}>×</Text>
+          
+          <DateSelector 
+            dates={this.state.futureOptions} 
+            onChange={this.onFutureChange.bind(this)} />
+        </View>
       </View>
     );
   }
@@ -131,6 +143,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
+  },
+
+  header: {
+    flex: 1,
+    paddingTop: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  footer: {
+    flex: 1.8,
+    paddingTop: 10,
+    paddingBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  location: {
+    fontSize: 20,
+    color: '#FF6666'
+  },
+
+  vs: {
+    color: "#88998899",
+    fontSize: 20
   }
 });
 
