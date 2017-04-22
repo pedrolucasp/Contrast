@@ -17,6 +17,7 @@ import startOfDay from 'date-fns/start_of_day';
 import { DateSelector }      from './components/DateSelector';
 import { HourlyChart }       from './components/HourlyChart';
 import { API_HOST, API_KEY } from './secret.json';
+import Theme                 from './themes';
 
 const LAT     = -31.776;
 const LNG     = -52.3594;
@@ -49,15 +50,16 @@ export default class Contrast extends Component {
   constructor() {
     super();
 
-    let yesterday = subDays(today, 1);
+    let yesterday          = subDays(today, 1);
+    let dayBeforeYesterday = subDays(yesterday, 1);
 
     this.state = {
       ratio: new Animated.Value(100),
       location: 'Pelotas, Brasil',
-      pastOptions: [yesterday],
+      pastOptions: [dayBeforeYesterday, yesterday],
       futureOptions: [today, addDays(today, 1)],
 
-      past: yesterday,
+      past: dayBeforeYesterday,
       future: today,
 
       pastWeather: emptyWeather(),
@@ -123,13 +125,15 @@ export default class Contrast extends Component {
         <View style={styles.footer}>
           <DateSelector 
             dates={this.state.pastOptions} 
-            onChange={this.onPastChange.bind(this)} />
+            onChange={this.onPastChange.bind(this)}
+            style={{ color: Theme.colors.past }} />
 
           <Text style={[styles.vs]}>×</Text>
           
           <DateSelector 
             dates={this.state.futureOptions} 
-            onChange={this.onFutureChange.bind(this)} />
+            onChange={this.onFutureChange.bind(this)}
+            style={{ color: Theme.colors.future }} />
         </View>
       </View>
     );
@@ -142,7 +146,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    backgroundColor: Theme.colors.background,
   },
 
   header: {
@@ -162,11 +166,11 @@ const styles = StyleSheet.create({
 
   location: {
     fontSize: 20,
-    color: '#FF6666'
+    color: Theme.colors.location
   },
 
   vs: {
-    color: "#88998899",
+    color: Theme.colors.vsLabel,
     fontSize: 20
   }
 });

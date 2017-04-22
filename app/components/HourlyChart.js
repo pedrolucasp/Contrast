@@ -10,6 +10,7 @@ import {
 const { Surface, Group, Rectangle, ClippingRectangle, LinearGradient, Shape } = ART;
 
 import AnimShape   from '../animations/AnimShape';
+import Theme       from '../themes/';
 import * as scale  from 'd3-scale';
 import * as shape  from 'd3-shape';
 import * as format from 'd3-format';
@@ -61,7 +62,7 @@ export class HourlyChart extends React.Component {
   }
 
   setColor(chartType) {
-    return chartType == 'past' ? '#E4C478' : '#74B49B';
+    return Theme.colors[chartType];
   }
 
   hoursLabels() {
@@ -114,6 +115,6 @@ const styles = StyleSheet.create({
     marginRight: 2,
     width: 28,
     fontWeight: 'bold',
-    color: '#ff666688'
+    color: Theme.colors.hoursLabel
   }
 });

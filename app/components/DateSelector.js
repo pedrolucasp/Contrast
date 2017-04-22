@@ -43,9 +43,9 @@ type Props = {
   onChange: ChangeHandler
 };
 
-export function DateSelector({ dates, onChange }: Props) {
+export function DateSelector({ dates, onChange, style }: Props) {
   const texts = dates.map((date, i) => (
-    <Text key={i} style={[styles.text]}>{formatDate(date)}</Text>
+    <Text key={i} style={[styles.text, style]}>{formatDate(date)}</Text>
   ));
 
   return <View style={[styles.container]}>
